@@ -5,7 +5,8 @@ const {
   ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Client, EmbedBuilder,
   Events, GatewayIntentBits, MessageFlags, PermissionFlagsBits
 } = require('discord.js');
-const config = require('../config.json');
+const config = require('./config.json')
+
 const dataDir = path.join(__dirname, 'data');
 fs.mkdirSync(dataDir, { recursive: true });
 const warningsFile = path.join(dataDir, 'warnings.json');
