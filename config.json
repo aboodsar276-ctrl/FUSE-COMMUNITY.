@@ -1,0 +1,12 @@
+{
+  "welcomeChannelId": "",
+  "logChannelId": "",
+  "ticketCategoryId": "",
+  "supportRoleId": "",
+  "welcomeMessage": "أهلًا {user} في **{server}**! نورت السيرفر 🌟",
+  "ticketMessage": "اضغط الزر لفتح تذكرة خاصة مع فريق الدعم.",
+  "autoReplies": [
+    { "trigger": "السلام عليكم", "response": "وعليكم السلام ورحمة الله وبركاته 🌷" },
+    { "trigger": "قوانين", "response": "يرجى مراجعة القوانين المثبتة في السيرفر." }
+  ]
+}
