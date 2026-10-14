@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./deploy-commands.js');
 const fs = require('node:fs');
 const path = require('node:path');
 const {
