@@ -47,10 +47,11 @@ ctx.drawImage(avatar, 370, 45, 160, 160);
 ctx.restore();
 
 // اسم العضو تحت صورته
-ctx.font = 'bold 32px Arial';
+ctx.font = 'bold 40px Arial';
 ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
 ctx.fillStyle = '#ffffff';
-ctx.fillText(member.displayName.slice(0, 24), 450, 280);
+ctx.fillText(member.user.username, 450, 280);
     const welcomeImage = await canvas.encode('png');
 
     const welcomeText = config.welcomeMessage
