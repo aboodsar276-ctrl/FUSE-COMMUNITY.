@@ -2,6 +2,7 @@ require('dotenv').config();
 require('./deploy-commands.js');
 const fs = require('node:fs');
 const path = require('node:path');
+const { createCanvas, loadImage } = require('@napi-rs/canvas');
 const {
   ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Client, EmbedBuilder,
   Events, GatewayIntentBits, MessageFlags, PermissionFlagsBits
@@ -24,31 +25,63 @@ client.on(Events.GuildMemberAdd, async member => {
 
   if (!channel) return;
 
-  const welcomeText = config.welcomeMessage
-    .replaceAll('{user}', `<@${member.id}>`)
-    .replaceAll('{server}', member.guild.name);
+  try {
+    const width = 1491;
+    const height = 840;
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
 
-  await channel.send({
-    content: welcomeText,
-    embeds: [
-      new EmbedBuilder()
-        .setColor(0x5b21b6)
-        .setTitle(member.displayName)
-        .setDescription(
-          `Welcome to the server!\nWelcome <@${member.id}> to our family ✦`
-        )
-        .setThumbnail(member.user.displayAvatarURL({ size: 256 }))
-        .addFields(
-          {
-            name: 'Rules',
-            value: '<#1556019029011992706>',
-            inline: true
-          },
-          {
-            name: 'Members',
-            value: `${member.guild.memberCount}`,
-            inline: true
-          }
+    const [decoration, avatar] = await Promise.all([
+      loadImage(path.join(__dirname, 'welcome-decoration.png')),
+      loadImage(member.displayAvatarURL({ extension: 'png', size: 256 }))
+    ]);
+
+    ctx.fillStyle = '#301b36';
+    ctx.fillRect(0, 0, width, height);
+
+    // صورة العضو داخل دائرة الزخرفة
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(440, 330, 74, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(avatar, 366, 256, 148, 148);
+    ctx.restore();
+
+    // وضع الزخرفة فوق صورة العضو
+    ctx.drawImage(decoration, 0, 0, width, height);
+
+    // اسم العضو بخط صغير تحت صورته
+    ctx.font = 'bold 25px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(member.displayName.slice(0, 24), 440, 440);
+
+    const welcomeImage = await canvas.encode('png');
+
+    const welcomeText = config.welcomeMessage
+      .replaceAll('{user}', `<@${member.id}>`)
+      .replaceAll('{server}', member.guild.name);
+
+    const embed = new EmbedBuilder()
+      .setColor(0x5b21b6)
+      .setDescription(
+        `Welcome to the server!\nWelcome <@${member.id}> to our family ✦`
+      )
+      .addFields(
+        { name: 'Rules', value: '<#1556019029011992706>', inline: true },
+        { name: 'Members', value: `${member.guild.memberCount}`, inline: true }
+      )
+      .setImage('attachment://welcome-card.png');
+
+    await channel.send({
+      content: welcomeText,
+      embeds: [embed],
+      files: [{ attachment: welcomeImage, name: 'welcome-card.png' }]
+    });
+  } catch (error) {
+    console.error('Welcome image error:', error);
+  }
+});
         )
         .setImage('attachment://welcome-decoration.png')
     ],
