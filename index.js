@@ -82,11 +82,7 @@ client.on(Events.GuildMemberAdd, async member => {
     console.error('Welcome image error:', error);
   }
 });     
-        .setImage('attachment://welcome-decoration.png')
-    ],
-    files: ['./welcome-decoration.png']
-  }).catch(console.error);
-});
+    
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot || !message.guild) return;
   const found = config.autoReplies.find(x => message.content.toLowerCase().includes(x.trigger.toLowerCase()));
