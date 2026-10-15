@@ -2,7 +2,8 @@
   "welcomeChannelId": "1556017246919459002",
   "logChannelId": "",
   "ticketCategoryId": "",
-  "supportRoleId": "",
+  "supportRoleId": "1556053314120978462",
+  "managementRoleId": "1560413851248496730",
   "welcomeMessage": "أهلًا {user} في **{server}**! نورت السيرفر 🌟",
   "ticketMessage": "اضغط الزر لفتح تذكرة خاصة مع فريق الدعم.",
  "autoReplies": [ 
