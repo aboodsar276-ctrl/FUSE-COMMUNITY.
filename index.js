@@ -26,42 +26,31 @@ client.on(Events.GuildMemberAdd, async member => {
   if (!channel) return;
 
   try {
-    const width = 1491;
-    const height = 920;
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext('2d');
+   const width = 900;
+const height = 360;
+const canvas = createCanvas(width, height);
+const ctx = canvas.getContext('2d');
 
-    const [decoration, avatar] = await Promise.all([
-      loadImage(path.join(__dirname, 'welcome-decoration.png')),
-      loadImage(member.displayAvatarURL({ extension: 'png', size: 256 }))
-    ]);
+const avatar = await loadImage(
+  member.displayAvatarURL({ extension: 'png', size: 256 })
+);
 
-    ctx.fillStyle = '#301b36';
-    ctx.fillRect(0, 0, width, height);
+ctx.fillStyle = '#000000';
+ctx.fillRect(0, 0, width, height);
 
-    // صورة العضو داخل دائرة الزخرفة
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(440, 410, 150, 0, Math.PI * 2);
-    ctx.clip();
-   ctx.drawImage(avatar, 290, 260, 300, 300);
-    ctx.restore();
+// صورة العضو في الوسط
+ctx.save();
+ctx.beginPath();
+ctx.arc(450, 125, 80, 0, Math.PI * 2);
+ctx.clip();
+ctx.drawImage(avatar, 370, 45, 160, 160);
+ctx.restore();
 
-    // وضع الزخرفة فوق صورة العضو
-    ctx.drawImage(decoration, 0, 80, width, 840);
-
-    // اسم العضو بخط صغير تحت صورته
-   const memberName = member.displayName.slice(0, 24);
-
-ctx.font = 'bold 36px Arial';
+// اسم العضو تحت صورته
+ctx.font = 'bold 32px Arial';
 ctx.textAlign = 'center';
-ctx.textBaseline = 'middle';
-ctx.lineWidth = 8;
-ctx.strokeStyle = '#301b36';
 ctx.fillStyle = '#ffffff';
-ctx.strokeText(memberName, 440, 620);
-ctx.fillText(memberName, 440, 620);
-
+ctx.fillText(member.displayName.slice(0, 24), 450, 280);
     const welcomeImage = await canvas.encode('png');
 
     const welcomeText = config.welcomeMessage
