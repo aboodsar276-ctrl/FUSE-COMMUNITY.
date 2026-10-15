@@ -82,7 +82,7 @@ client.on(Events.GuildMemberAdd, async member => {
     console.error('Welcome image error:', error);
   }
 });
-        )
+        
         .setImage('attachment://welcome-decoration.png')
     ],
     files: ['./welcome-decoration.png']
