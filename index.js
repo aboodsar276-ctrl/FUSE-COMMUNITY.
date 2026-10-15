@@ -42,19 +42,19 @@ client.on(Events.GuildMemberAdd, async member => {
     // صورة العضو داخل دائرة الزخرفة
     ctx.save();
     ctx.beginPath();
-    ctx.arc(440, 360, 150, 0, Math.PI * 2);
+    ctx.arc(440, 410, 150, 0, Math.PI * 2);
     ctx.clip();
-   ctx.drawImage(avatar, 290, 210, 300, 300);
+   ctx.drawImage(avatar, 290, 260, 300, 300);
     ctx.restore();
 
     // وضع الزخرفة فوق صورة العضو
-    ctx.drawImage(decoration, 0, 30, width, height);
+    ctx.drawImage(decoration, 0, 80, width, height);
 
     // اسم العضو بخط صغير تحت صورته
     ctx.font = 'bold 25px Arial';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(member.displayName.slice(0, 24), 440, 545);
+    ctx.fillText(member.displayName.slice(0, 24), 440, 595);
 
     const welcomeImage = await canvas.encode('png');
 
