@@ -27,7 +27,7 @@ client.on(Events.GuildMemberAdd, async member => {
 
   try {
     const width = 1491;
-    const height = 840;
+    const height = 920;
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
@@ -48,7 +48,7 @@ client.on(Events.GuildMemberAdd, async member => {
     ctx.restore();
 
     // وضع الزخرفة فوق صورة العضو
-    ctx.drawImage(decoration, 0, 80, width, height);
+    ctx.drawImage(decoration, 0, 80, width, 840);
 
     // اسم العضو بخط صغير تحت صورته
     ctx.font = 'bold 25px Arial';
