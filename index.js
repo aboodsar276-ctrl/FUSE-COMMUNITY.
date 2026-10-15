@@ -51,10 +51,16 @@ client.on(Events.GuildMemberAdd, async member => {
     ctx.drawImage(decoration, 0, 80, width, 840);
 
     // اسم العضو بخط صغير تحت صورته
-    ctx.font = 'bold 25px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(member.displayName.slice(0, 24), 440, 595);
+   const memberName = member.displayName.slice(0, 24);
+
+ctx.font = 'bold 36px Arial';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.lineWidth = 8;
+ctx.strokeStyle = '#301b36';
+ctx.fillStyle = '#ffffff';
+ctx.strokeText(memberName, 440, 620);
+ctx.fillText(memberName, 440, 620);
 
     const welcomeImage = await canvas.encode('png');
 
