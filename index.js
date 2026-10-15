@@ -18,9 +18,42 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 
 client.once(Events.ClientReady, c => console.log(`تم تسجيل الدخول باسم ${c.user.tag}`));
 client.on(Events.GuildMemberAdd, async member => {
-  if (!config.welcomeChannelId) return;
-  const channel = await member.guild.channels.fetch(config.welcomeChannelId).catch(() => null);
-  if (channel) await channel.send(config.welcomeMessage.replaceAll('{user}', `<@${member.id}>`).replaceAll('{server}', member.guild.name));
+  const channel = await member.guild.channels
+    .fetch(config.welcomeChannelId)
+    .catch(() => null);
+
+  if (!channel) return;
+
+  const welcomeText = config.welcomeMessage
+    .replaceAll('{user}', `<@${member.id}>`)
+    .replaceAll('{server}', member.guild.name);
+
+  await channel.send({
+    content: welcomeText,
+    embeds: [
+      new EmbedBuilder()
+        .setColor(0x5b21b6)
+        .setTitle(member.displayName)
+        .setDescription(
+          `Welcome to the server!\nWelcome <@${member.id}> to our family ✦`
+        )
+        .setThumbnail(member.user.displayAvatarURL({ size: 256 }))
+        .addFields(
+          {
+            name: 'Rules',
+            value: '<#1556019029011992706>',
+            inline: true
+          },
+          {
+            name: 'Members',
+            value: `${member.guild.memberCount}`,
+            inline: true
+          }
+        )
+        .setImage('attachment://welcome-decoration.png')
+    ],
+    files: ['./welcome-decoration.png']
+  }).catch(console.error);
 });
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot || !message.guild) return;
