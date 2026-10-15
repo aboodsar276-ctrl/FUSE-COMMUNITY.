@@ -42,9 +42,9 @@ client.on(Events.GuildMemberAdd, async member => {
     // صورة العضو داخل دائرة الزخرفة
     ctx.save();
     ctx.beginPath();
-   ctx.arc(440, 330, 105, 0, Math.PI * 2);
+    ctx.arc(440, 330, 150, 0, Math.PI * 2);
     ctx.clip();
-    ctx.drawImage(avatar, 335, 225, 210, 210);
+   ctx.drawImage(avatar, 290, 180, 300, 300);
     ctx.restore();
 
     // وضع الزخرفة فوق صورة العضو
@@ -54,7 +54,7 @@ client.on(Events.GuildMemberAdd, async member => {
     ctx.font = 'bold 25px Arial';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(member.displayName.slice(0, 24), 440, 470);
+    ctx.fillText(member.displayName.slice(0, 24), 440, 515);
 
     const welcomeImage = await canvas.encode('png');
 
@@ -62,26 +62,15 @@ client.on(Events.GuildMemberAdd, async member => {
       .replaceAll('{user}', `<@${member.id}>`)
       .replaceAll('{server}', member.guild.name);
 
-    const embed = new EmbedBuilder()
-      .setColor(0x5b21b6)
-      .setDescription(
-        `Welcome to the server!\nWelcome <@${member.id}> to our family ✦`
-      )
-      .addFields(
-        { name: 'Rules', value: '<#1556019029011992706>', inline: true },
-        { name: 'Members', value: `${member.guild.memberCount}`, inline: true }
-      )
-      .setImage('attachment://welcome-card.png');
-
-    await channel.send({
-      content: welcomeText,
-      embeds: [embed],
-      files: [{ attachment: welcomeImage, name: 'welcome-card.png' }]
-    });
-  } catch (error) {
-    console.error('Welcome image error:', error);
-  }
-});     
+   await channel.send({
+  content: `${welcomeText}\nWelcome to the server!\nWelcome <@${member.id}> to our family ✦\n📜 Rules: <#1556019029011992706>\n👥 Members: ${member.guild.memberCount}`,
+  files: [{ attachment: welcomeImage, name: 'welcome-card.png' }]
+});
+} catch (error) {
+  console.error('Welcome image error:', error);
+}
+});
+ 
     
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot || !message.guild) return;
