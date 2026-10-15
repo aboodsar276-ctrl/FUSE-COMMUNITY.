@@ -2,7 +2,8 @@ require('dotenv').config();
 require('./deploy-commands.js');
 const fs = require('node:fs');
 const path = require('node:path');
-const { createCanvas, loadImage } = require('@napi-rs/canvas');
+const { createCanvas, loadImage, GlobalFonts } = require('@napi-rs/canvas');
+GlobalFonts.registerFromPath(path.join(__dirname, 'font.ttf'), 'WelcomeFont');
 const {
   ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Client, EmbedBuilder,
   Events, GatewayIntentBits, MessageFlags, PermissionFlagsBits
@@ -47,7 +48,7 @@ ctx.drawImage(avatar, 370, 45, 160, 160);
 ctx.restore();
 
 // اسم العضو تحت صورته
-ctx.font = 'bold 40px Arial';
+ ctx.font = 'bold 40px WelcomeFont';
 ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
 ctx.fillStyle = '#ffffff';
