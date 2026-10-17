@@ -82,6 +82,8 @@ client.on(Events.MessageCreate, async message => {
 const eventMessage = eventMessages[message.content.trim()];
 
 if (eventMessage) {
+  const allowedRoles = ['1560413851248496730', '1556053314120978462'];
+if (!message.member.roles.cache.some(role => allowedRoles.includes(role.id))) return;
   await message.channel.send({
     content: eventMessage,
     allowedMentions: { roles: ['1556295463987318905'] }
