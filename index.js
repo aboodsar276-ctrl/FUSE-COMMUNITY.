@@ -72,6 +72,22 @@ ctx.fillText(member.user.username, 450, 280);
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot || !message.guild) return;
   const found = config.autoReplies.find(x => message.content.toLowerCase().includes(x.trigger.toLowerCase()));
+  const eventMessages = {
+  'بدايه فعاليات':
+    '<@&1556295463987318905>\n# 🎉 بدت فعالياتنا لهذا اليوم الجميل 🎉',
+  'نهايه فعاليات':
+    '<@&1556295463987318905>\n# انتهت فعالياتنا لهذا اليوم\nلا تنسو تصلو على النبي 🖤'
+};
+
+const eventMessage = eventMessages[message.content.trim()];
+
+if (eventMessage) {
+  await message.channel.send({
+    content: eventMessage,
+    allowedMentions: { roles: ['1556295463987318905'] }
+  });
+  return;
+}
   if (found) await message.reply(found.response).catch(() => {});
 });
 async function log(guild, title, description) {
