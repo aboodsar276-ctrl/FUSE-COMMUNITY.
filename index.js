@@ -86,6 +86,7 @@ if (eventMessage) {
     content: eventMessage,
     allowedMentions: { roles: ['1556295463987318905'] }
   });
+  await message.delete().catch(() => {});
   return;
 }
   if (found) await message.reply(found.response).catch(() => {});
