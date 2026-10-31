@@ -71,6 +71,16 @@ ctx.fillText(member.user.username, 450, 280);
     
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot || !message.guild) return;
+  const lineRoomId = '1562747416745218169';
+
+if (message.channel.id === lineRoomId) {
+  await message.channel.send('https://cdn.discordapp.com/attachments/1534644648587563190/1559674833216864356/FS_Discord_line_animated.gif?ex=6ae70221&is=6ae5b0a1&hm=88065be90d6c3fb6b1ea37d6cb3a66667397caac041c1a090be8ccff475bd04a');
+
+  if (message.content.trim() === '!خط') {
+    await message.delete().catch(() => {});
+    return;
+  }
+}
   const found = config.autoReplies.find(x => message.content.toLowerCase().includes(x.trigger.toLowerCase()));
   const eventMessages = {
   'بدايه فعاليات':
