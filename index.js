@@ -92,7 +92,7 @@ if (!message.member.roles.cache.some(role => allowedRoles.includes(role.id))) re
   return;
 }
 if (found) {
-  if (message.content.trim() === 'خط') {
+  if (message.content.trim() === '!خط') {
     await message.channel.send(found.response);
     await message.delete().catch(() => {});
   } else {
