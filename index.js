@@ -91,8 +91,14 @@ if (!message.member.roles.cache.some(role => allowedRoles.includes(role.id))) re
   await message.delete().catch(() => {});
   return;
 }
-  if (found) await message.reply(found.response).catch(() => {});
-});
+if (found) {
+  if (message.content.trim() === 'خط') {
+    await message.channel.send(found.response);
+    await message.delete().catch(() => {});
+  } else {
+    await message.reply(found.response).catch(() => {});
+  }
+}});
 async function log(guild, title, description) {
   if (!config.logChannelId) return;
   const channel = await guild.channels.fetch(config.logChannelId).catch(() => null);
