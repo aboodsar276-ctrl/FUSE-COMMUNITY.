@@ -71,6 +71,43 @@ ctx.fillText(member.user.username, 450, 280);
     
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot || !message.guild) return;
+  if (message.content.trim() === '!نشرالقوانين') {
+  if (message.channel.id !== '1556019029011992706') return;
+
+  const allowedRoles = [
+    '1560413851248496730',
+    '1556053314120978462',
+    '1556059028528963674'
+  ];
+
+  if (!message.member.roles.cache.some(role => allowedRoles.includes(role.id))) return;
+
+  const rulesEmbed = new EmbedBuilder()
+    .setColor(0x301b36)
+    .setTitle('قوانين مجتمعنا')
+    .setDescription([
+      '1. الاحترام واجب بين جميع الأعضاء',
+      '2. يمنع السب والشتم والإساءة لأي عضو',
+      '3. يمنع نشر أو طلب أي محتوى غير مناسب',
+      '4. يمنع نشر الروابط أو الإعلانات بدون إذن الإدارة',
+      '5. يمنع التمييز أو العنصرية أو إثارة المشاكل',
+      '6. يمنع إزعاج الأعضاء بالمنشنات المتكررة',
+      '7. يمنع انتحال شخصية أي عضو أو إداري',
+      '8. يمنع استغلال الثغرات أو محاولة تخريب السيرفر',
+      '9. يمنع إثارة المشاكل أو افتعال النزاعات داخل الكوميونتي',
+      '10. يجب الالتزام بتعليمات الإدارة والمشرفين',
+      '11. يمنع استخدام الحسابات البديلة للتحايل على العقوبات',
+      '12. يمنع نشر معلومات شخصية عن أي شخص بدون موافقته',
+      '13. يمنع السبام وتكرار الرسائل بشكل مزعج',
+      '14. يمنع استغلال قنوات الكوميونتي لغير الغرض المخصص لها',
+      '15. مخالفة القوانين تعرض صاحبها للعقوبة حسب تقدير الإدارة'
+    ].join('\n'))
+    .setImage('https://cdn.discordapp.com/attachments/1534644648587563190/1559674833216864356/FS_Discord_line_animated.gif?ex=6ae70221&is=6ae5b0a1&hm=88065be90d6c3fb6b1ea37d6cb3a66667397caac041c1a090be8ccff475bd04a');
+
+  await message.channel.send({ embeds: [rulesEmbed] });
+  await message.delete().catch(() => {});
+  return;
+}
   const lineRoomId = '1562747416745218169';
 
 if (message.channel.id === lineRoomId) {
