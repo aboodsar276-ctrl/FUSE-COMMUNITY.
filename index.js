@@ -139,11 +139,9 @@ if (ranksToAdd.length) {
 
     const highestRank = ranksToAdd[ranksToAdd.length - 1];
 
-    if (pointsLog) {
-      await pointsLog.send(
-        `🎉 مبروك ${pointsTarget}، لقد ترقيت لرتبة **${highestRank.name}** ❤️❤️`
-      );
-    }
+    await message.channel.send(
+  `🎉 مبروك ${pointsTarget}، لقد ترقيت لرتبة **${highestRank.name}** ❤️❤️`
+);
   } catch (error) {
     console.error('Promotion role error:', error);
   }
