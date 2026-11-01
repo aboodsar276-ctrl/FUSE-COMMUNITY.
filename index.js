@@ -157,9 +157,18 @@ if (ranksToRemove.length) {
     .catch(error => console.error('Demotion role error:', error));
 }
 if (pointsLog) {
-  await pointsLog.send(
-    `📊 سجل النقاط\nالإداري: ${message.author.tag}\nالعضو: ${pointsTarget.user.tag}\nالتعديل: ${change > 0 ? '+' : ''}${change}\nالمجموع الجديد: ${points[pointsTarget.id]}`
-  ).catch(() => {});
+  const logEmbed = new EmbedBuilder()
+    .setColor(change > 0 ? 0x57f287 : 0xed4245)
+    .setTitle('📊 سجل النقاط')
+    .addFields(
+      { name: 'الإداري', value: message.author.tag, inline: true },
+      { name: 'العضو', value: pointsTarget.user.tag, inline: true },
+      { name: 'التعديل', value: `${change > 0 ? '+' : ''}${change}`, inline: true },
+      { name: 'المجموع الجديد', value: String(points[pointsTarget.id]), inline: true }
+    )
+    .setTimestamp();
+
+  await pointsLog.send({ embeds: [logEmbed] }).catch(() => {});
 }
 
 await message.reply(
