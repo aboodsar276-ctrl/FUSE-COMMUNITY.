@@ -146,6 +146,16 @@ if (ranksToAdd.length) {
     console.error('Promotion role error:', error);
   }
 }
+  const ranksToRemove = rankLevels.filter(rank =>
+  points[pointsTarget.id] < rank.points &&
+  pointsTarget.roles.cache.has(rank.id)
+);
+
+if (ranksToRemove.length) {
+  await pointsTarget.roles
+    .remove(ranksToRemove.map(rank => rank.id))
+    .catch(error => console.error('Demotion role error:', error));
+}
 if (pointsLog) {
   await pointsLog.send(
     `📊 سجل النقاط\nالإداري: ${message.author.tag}\nالعضو: ${pointsTarget.user.tag}\nالتعديل: ${change > 0 ? '+' : ''}${change}\nالمجموع الجديد: ${points[pointsTarget.id]}`
