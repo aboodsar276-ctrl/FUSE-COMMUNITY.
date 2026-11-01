@@ -108,9 +108,21 @@ const change = pointsMatch[1] === '+' ? amount : -amount;
   points[pointsTarget.id] = Math.max(0, (points[pointsTarget.id] || 0) + change);
   savePoints(points);
 
-  await message.reply(
-    `تمت إضافة ${amount} نقطة لـ ${pointsTarget}. مجموع نقاطه: ${points[pointsTarget.id]}`
+
+const pointsLog = await message.guild.channels
+  .fetch('1566391744113811496')
+  .catch(() => null);
+
+if (pointsLog) {
+  await pointsLog.send(
+    `📊 سجل النقاط\nالإداري: ${message.author.tag}\nالعضو: ${pointsTarget.user.tag}\nالتعديل: ${change > 0 ? '+' : ''}${change}\nالمجموع الجديد: ${points[pointsTarget.id]}`
   ).catch(() => {});
+}
+
+await message.reply(
+  `تم تعديل نقاط ${pointsTarget} بمقدار ${change > 0 ? '+' : ''}${change}. المجموع الآن: ${points[pointsTarget.id]}`
+).catch(() => {});
+  
   return;
 }
   if (message.content.trim() === '!نشرالقوانين') {
