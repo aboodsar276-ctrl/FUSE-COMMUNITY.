@@ -6,7 +6,7 @@ const { createCanvas, loadImage, GlobalFonts } = require('@napi-rs/canvas');
 GlobalFonts.registerFromPath(path.join(__dirname, 'font.ttf'), 'WelcomeFont');
 const {
   ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Client, EmbedBuilder,
-  Events, GatewayIntentBits, MessageFlags, PermissionFlagsBits
+Events, GatewayIntentBits, MessageFlags, PermissionFlagsBits, AuditLogEvent
 } = require('discord.js');
 const config = require('./config.json')
 
@@ -263,6 +263,103 @@ client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
         `شكرًا جزيلًا على دعمك لسيرفرنا بالبوست، بوجودك نكبر العائلة\n\n✦ <@${newMember.id}> ✦`
       );
     }
+  }
+});
+async function sendMemberLog(guild, title, description, color) {
+  const channel = await guild.channels
+    .fetch('1556057724540682370')
+    .catch(() => null);
+
+  if (!channel?.isTextBased()) return;
+
+  const embed = new EmbedBuilder()
+    .setColor(color)
+    .setTitle(title)
+    .setDescription(description)
+    .setTimestamp();
+
+  await channel.send({ embeds: [embed] }).catch(() => {});
+}
+
+client.on(Events.GuildMemberAdd, async member => {
+  await sendMemberLog(
+    member.guild,
+    'دخل عضو جديد',
+    `العضو: ${member.user.tag}\nالمعرّف: ${member.id}`,
+    0x57f287
+  );
+});
+
+client.on(Events.GuildMemberRemove, async member => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  const logs = await member.guild.fetchAuditLogs({ limit: 10 }).catch(() => null);
+
+  const entry = logs?.entries.find(item =>
+    [AuditLogEvent.MemberKick, AuditLogEvent.MemberBanAdd].includes(item.action) &&
+    item.target?.id === member.id &&
+    Date.now() - item.createdTimestamp < 15000
+  );
+
+  const action = !entry
+    ? 'غادر السيرفر'
+    : entry.action === AuditLogEvent.MemberBanAdd
+      ? 'تم حظره'
+      : 'تم طرده';
+
+  const executor = entry?.executor
+    ? `\nبواسطة: ${entry.executor.tag}`
+    : '';
+
+  await sendMemberLog(
+    member.guild,
+    action,
+    `العضو: ${member.user.tag}\nالمعرّف: ${member.id}${executor}`,
+    entry ? 0xed4245 : 0x5865f2
+  );
+});
+
+client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
+  const addedRoles = newMember.roles.cache.filter(role =>
+    !oldMember.roles.cache.has(role.id)
+  );
+
+  const removedRoles = oldMember.roles.cache.filter(role =>
+    !newMember.roles.cache.has(role.id)
+  );
+
+  if (!addedRoles.size && !removedRoles.size) return;
+
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  const logs = await newMember.guild.fetchAuditLogs({
+    type: AuditLogEvent.MemberRoleUpdate,
+    limit: 10
+  }).catch(() => null);
+
+  const entry = logs?.entries.find(item =>
+    item.target?.id === newMember.id &&
+    Date.now() - item.createdTimestamp < 15000
+  );
+
+  const executor = entry?.executor?.tag || 'غير معروف';
+
+  for (const role of addedRoles.values()) {
+    await sendMemberLog(
+      newMember.guild,
+      'تمت إضافة رتبة',
+      `العضو: ${newMember.user.tag}\nأضافها: ${executor}\nالرتبة: ${role.name}`,
+      0x57f287
+    );
+  }
+
+  for (const role of removedRoles.values()) {
+    await sendMemberLog(
+      newMember.guild,
+      'تمت إزالة رتبة',
+      `العضو: ${newMember.user.tag}\nأزالها: ${executor}\nالرتبة: ${role.name}`,
+      0xed4245
+    );
   }
 });
 async function log(guild, title, description) {
