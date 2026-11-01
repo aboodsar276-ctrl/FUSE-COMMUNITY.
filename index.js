@@ -92,7 +92,7 @@ client.on(Events.MessageCreate, async message => {
 }
 
 const pointsTarget = message.mentions.members.first();
-const pointsMatch = message.content.match(/\+(\d+)\s*$/);
+const pointsMatch = message.content.match(/([+-])(\d+)\s*$/);
 
 if (pointsTarget && pointsMatch) {
   if (!message.member.roles.cache.has('1560413851248496730')) {
@@ -100,11 +100,12 @@ if (pointsTarget && pointsMatch) {
     return;
   }
 
-  const amount = Number(pointsMatch[1]);
+  const amount = Number(pointsMatch[2]);
+const change = pointsMatch[1] === '+' ? amount : -amount;
   if (amount <= 0) return;
 
   const points = getPoints();
-  points[pointsTarget.id] = (points[pointsTarget.id] || 0) + amount;
+  points[pointsTarget.id] = Math.max(0, (points[pointsTarget.id] || 0) + change);
   savePoints(points);
 
   await message.reply(
