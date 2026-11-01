@@ -16,6 +16,11 @@ const warningsFile = path.join(dataDir, 'warnings.json');
 if (!fs.existsSync(warningsFile)) fs.writeFileSync(warningsFile, '{}');
 const getWarnings = () => JSON.parse(fs.readFileSync(warningsFile, 'utf8'));
 const saveWarnings = data => fs.writeFileSync(warningsFile, JSON.stringify(data, null, 2));
+const pointsFile = path.join(dataDir, 'points.json');
+if (!fs.existsSync(pointsFile)) fs.writeFileSync(pointsFile, '{}');
+
+const getPoints = () => JSON.parse(fs.readFileSync(pointsFile, 'utf8'));
+const savePoints = data => fs.writeFileSync(pointsFile, JSON.stringify(data, null, 2));
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 client.once(Events.ClientReady, c => console.log(`تم تسجيل الدخول باسم ${c.user.tag}`));
@@ -71,6 +76,42 @@ ctx.fillText(member.user.username, 450, 280);
     
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot || !message.guild) return;
+  if (message.content.trim() === '+استعلام') {
+  const rows = Object.entries(getPoints())
+    .filter(([, total]) => total > 0)
+    .sort((a, b) => b[1] - a[1])
+    .map(([id, total], index) => `${index + 1}. <@${id}> — **${total}** نقطة`);
+
+  const embed = new EmbedBuilder()
+    .setColor(0x5865f2)
+    .setTitle('نقاط الأعضاء')
+    .setDescription(rows.join('\n') || 'ما في أعضاء معهم نقاط حاليًا.');
+
+  await message.channel.send({ embeds: [embed] });
+  return;
+}
+
+const pointsTarget = message.mentions.members.first();
+const pointsMatch = message.content.match(/\+(\d+)\s*$/);
+
+if (pointsTarget && pointsMatch) {
+  if (!message.member.roles.cache.has('1560413851248496730')) {
+    await message.reply('ما عندك صلاحية إضافة نقاط.').catch(() => {});
+    return;
+  }
+
+  const amount = Number(pointsMatch[1]);
+  if (amount <= 0) return;
+
+  const points = getPoints();
+  points[pointsTarget.id] = (points[pointsTarget.id] || 0) + amount;
+  savePoints(points);
+
+  await message.reply(
+    `تمت إضافة ${amount} نقطة لـ ${pointsTarget}. مجموع نقاطه: ${points[pointsTarget.id]}`
+  ).catch(() => {});
+  return;
+}
   if (message.content.trim() === '!نشرالقوانين') {
   if (message.channel.id !== '1556019029011992706') return;
 
@@ -146,6 +187,19 @@ if (found) {
     await message.reply(found.response).catch(() => {});
   }
 }});
+client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
+  if (!oldMember.premiumSince && newMember.premiumSince) {
+    const room = await newMember.guild.channels
+      .fetch('1556019948361351168')
+      .catch(() => null);
+
+    if (room) {
+      await room.send(
+        `شكرًا جزيلًا على دعمك لسيرفرنا بالبوست، بوجودك نكبر العائلة\n\n✦ <@${newMember.id}> ✦`
+      );
+    }
+  }
+});
 async function log(guild, title, description) {
   if (!config.logChannelId) return;
   const channel = await guild.channels.fetch(config.logChannelId).catch(() => null);
