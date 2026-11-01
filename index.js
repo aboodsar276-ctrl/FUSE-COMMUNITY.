@@ -112,7 +112,42 @@ const change = pointsMatch[1] === '+' ? amount : -amount;
 const pointsLog = await message.guild.channels
   .fetch('1566391744113811496')
   .catch(() => null);
+const rankLevels = [
+  { points: 0, id: '1559294398976626729', name: 'Trial Helper' },
+  { points: 25, id: '1559297204756156436', name: 'Helper' },
+  { points: 55, id: '1559298681856065576', name: 'Support' },
+  { points: 90, id: '1559299668184141874', name: 'Moderator' },
+  { points: 135, id: '1559300510211768402', name: 'Senior Moderator' },
+  { points: 185, id: '1559301778409791629', name: 'Trial Admin' },
+  { points: 245, id: '1559302846791286785', name: 'Admin' },
+  { points: 315, id: '1559303642572656670', name: 'Senior Admin' },
+  { points: 395, id: '1559304253623894036', name: 'Head Admin' },
+  { points: 485, id: '1560413851248496730', name: 'High Staff' },
+  { points: 585, id: '1559304879766372503', name: 'Supervisor' },
+  { points: 700, id: '1559305739124871208', name: 'Management' },
+  { points: 800, id: '1559305518831636562', name: 'Head Management' }
+];
 
+const ranksToAdd = rankLevels.filter(rank =>
+  points[pointsTarget.id] >= rank.points &&
+  !pointsTarget.roles.cache.has(rank.id)
+);
+
+if (ranksToAdd.length) {
+  try {
+    await pointsTarget.roles.add(ranksToAdd.map(rank => rank.id));
+
+    const highestRank = ranksToAdd[ranksToAdd.length - 1];
+
+    if (pointsLog) {
+      await pointsLog.send(
+        `🎉 مبروك ${pointsTarget}، لقد ترقيت لرتبة **${highestRank.name}** ❤️❤️`
+      );
+    }
+  } catch (error) {
+    console.error('Promotion role error:', error);
+  }
+}
 if (pointsLog) {
   await pointsLog.send(
     `📊 سجل النقاط\nالإداري: ${message.author.tag}\nالعضو: ${pointsTarget.user.tag}\nالتعديل: ${change > 0 ? '+' : ''}${change}\nالمجموع الجديد: ${points[pointsTarget.id]}`
