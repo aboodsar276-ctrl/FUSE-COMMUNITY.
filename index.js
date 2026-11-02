@@ -508,6 +508,50 @@ client.on(Events.InteractionCreate, async interaction => {
     });
   }
 });
+client.on(Events.MessageCreate, async message => {
+  if (message.author.bot || !message.guild) return;
+  if (!message.content.trim().startsWith('+ارجع')) return;
+
+  const allowedRoles = [
+    '1559303642572656670',
+    '1559304253623894036',
+    '1560413851248496730',
+    '1559304879766372503',
+    '1559305739124871208',
+    '1559305518831636562',
+    '1559306398976966696',
+    '1559306596952055828',
+    '1565053414331777174',
+    '1556053729193762907',
+    '1556027456584945685',
+    '1556315045582086354'
+  ];
+
+  if (!message.member.roles.cache.some(role => allowedRoles.includes(role.id))) {
+    await message.reply('ما عندك صلاحية تستخدم أمر فك الحظر.');
+    return;
+  }
+
+  const match = message.content.trim().match(/^\+ارجع\s+(?:<@!?(\d+)>|(\d+))$/);
+  const userId = match?.[1] || match?.[2];
+
+  if (!userId) {
+    await message.reply('استخدم الأمر هكذا: `+ارجع آيدي_العضو`');
+    return;
+  }
+
+  try {
+    const unbannedUser = await message.guild.bans.remove(
+      userId,
+      `فك الحظر بواسطة ${message.author.tag}`
+    );
+
+    await message.reply(`تم فك الحظر عن **${unbannedUser.tag}**.`);
+  } catch (error) {
+    console.error('Unban error:', error);
+    await message.reply('ما قدرت أفك الحظر. تأكد من الآيدي وأن العضو محظور.');
+  }
+});
 async function log(guild, title, description) {
   if (!config.logChannelId) return;
   const channel = await guild.channels.fetch(config.logChannelId).catch(() => null);
