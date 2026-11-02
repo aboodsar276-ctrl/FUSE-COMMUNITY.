@@ -76,7 +76,12 @@ ctx.fillText(member.user.username, 450, 280);
     
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot || !message.guild) return;
+  const allowedPointChannels = ['1556560887559618620', '1556596123001692190'];
   if (message.content.trim() === '+استعلام') {
+  if (!allowedPointChannels.includes(message.channel.id)) {
+  await message.reply('استخدم أحد رومي النقاط المخصصين.').catch(() => {});
+  return;
+}
   const rows = Object.entries(getPoints())
     .filter(([, total]) => total > 0)
     .sort((a, b) => b[1] - a[1])
@@ -95,6 +100,10 @@ const pointsTarget = message.mentions.members.first();
 const pointsMatch = message.content.match(/([+-])(\d+)\s*$/);
 
 if (pointsTarget && pointsMatch) {
+  if (!allowedPointChannels.includes(message.channel.id)) {
+  await message.reply('استخدم أحد رومي النقاط المخصصين.').catch(() => {});
+  return;
+}
   if (!message.member.roles.cache.has('1560413851248496730')) {
     await message.reply('ما عندك صلاحية إضافة نقاط.').catch(() => {});
     return;
