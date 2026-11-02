@@ -217,7 +217,7 @@ await message.reply(
       '14. يمنع استغلال قنوات الكوميونتي لغير الغرض المخصص لها',
       '15. مخالفة القوانين تعرض صاحبها للعقوبة حسب تقدير الإدارة'
     ].join('\n'))
-    .setImage('https://cdn.discordapp.com/attachments/1534644648587563190/1559674833216864356/FS_Discord_line_animated.gif?ex=6ae70221&is=6ae5b0a1&hm=88065be90d6c3fb6b1ea37d6cb3a66667397caac041c1a090be8ccff475bd04a');
+    .setImage('https://cdn.discordapp.com/attachments/1565225532050767922/1566793112519450754/FS_banner_blue_original_animation.gif?ex=6ae9d54b&is=6ae883cb&hm=6fee1f51b4e32f88971201bbc8d49dff339111534296e37772c64892d288f4ca');
 
   await message.channel.send({ embeds: [rulesEmbed] });
   await message.delete().catch(() => {});
@@ -226,7 +226,7 @@ await message.reply(
   const lineRoomId = '1562747416745218169';
 
 if (message.channel.id === lineRoomId) {
-  await message.channel.send('https://cdn.discordapp.com/attachments/1534644648587563190/1559674833216864356/FS_Discord_line_animated.gif?ex=6ae70221&is=6ae5b0a1&hm=88065be90d6c3fb6b1ea37d6cb3a66667397caac041c1a090be8ccff475bd04a');
+  await message.channel.send('https://cdn.discordapp.com/attachments/1565225532050767922/1566793112519450754/FS_banner_blue_original_animation.gif?ex=6ae9d54b&is=6ae883cb&hm=6fee1f51b4e32f88971201bbc8d49dff339111534296e37772c64892d288f4ca');
 
   if (message.content.trim() === '!خط') {
     await message.delete().catch(() => {});
