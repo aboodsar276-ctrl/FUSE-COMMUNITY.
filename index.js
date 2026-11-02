@@ -371,6 +371,143 @@ client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
     );
   }
 });
+const pendingBans = new Map();
+
+client.on(Events.MessageCreate, async message => {
+  if (message.author.bot || !message.guild) return;
+  if (!message.content.trim().startsWith('+تف')) return;
+
+  const allowedBanRoles = [
+    '1559303642572656670', // Senior Admin
+    '1559304253623894036', // Head Admin
+    '1560413851248496730', // High Staff
+    '1559304879766372503', // Supervisor
+    '1559305739124871208', // Management
+    '1559305518831636562', // Head Management
+    '1559306398976966696', // Co Founder
+    '1559306596952055828', // Founder
+    '1565053414331777174', // Developer
+    '1556053729193762907', // Co Owner
+    '1556027456584945685', // Owner
+    '1556315045582086354'  // The King of the Server
+  ];
+
+  if (!message.member.roles.cache.some(role => allowedBanRoles.includes(role.id))) {
+    await message.reply('ما عندك صلاحية تستخدم أمر الحظر.');
+    return;
+  }
+
+  const match = message.content.match(/^\+تف\s+<@!?\d+>\s*(.*)$/s);
+  const target = message.mentions.members.first();
+
+  if (!match || !target) {
+    await message.reply('استخدم الأمر هكذا: `+تف @العضو السبب` — والسبب اختياري.');
+    return;
+  }
+
+  if (target.id === message.author.id) {
+    await message.reply('ما تقدر تحظر نفسك.');
+    return;
+  }
+
+  const reason = match[1].trim() || 'لم يُذكر سبب';
+  const requestId = `${message.author.id}_${Date.now()}`;
+
+  pendingBans.set(requestId, {
+    guildId: message.guild.id,
+    targetId: target.id,
+    executorId: message.author.id,
+    reason
+  });
+
+  const banEmbed = new EmbedBuilder()
+    .setColor(0xed4245)
+    .setTitle('هل تود في استخدام السلاح المحرم دوليا؟')
+    .setDescription(`**العضو:** ${target.user.tag}\n**السبب:** ${reason}`)
+    .setImage('https://static2.klipy.com/ii/935d7ab9d8c6202580a668421940ec81/fa/91/9nZRxdF2.gif');
+
+  const buttons = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`ban_confirm:${requestId}`)
+      .setLabel('تأكيد الحظر')
+      .setStyle(ButtonStyle.Danger),
+    new ButtonBuilder()
+      .setCustomId(`ban_cancel:${requestId}`)
+      .setLabel('إلغاء')
+      .setStyle(ButtonStyle.Secondary)
+  );
+
+  await message.channel.send({ embeds: [banEmbed], components: [buttons] });
+});
+
+client.on(Events.InteractionCreate, async interaction => {
+  if (!interaction.isButton()) return;
+
+  const isConfirm = interaction.customId.startsWith('ban_confirm:');
+  const isCancel = interaction.customId.startsWith('ban_cancel:');
+  if (!isConfirm && !isCancel) return;
+
+  const requestId = interaction.customId.split(':')[1];
+  const pending = pendingBans.get(requestId);
+
+  if (!pending) {
+    await interaction.reply({
+      content: 'انتهت صلاحية هذا الطلب. أرسل الأمر مرة ثانية.',
+      flags: MessageFlags.Ephemeral
+    });
+    return;
+  }
+
+  if (interaction.user.id !== pending.executorId) {
+    await interaction.reply({
+      content: 'فقط الشخص الذي بدأ طلب الحظر يقدر يؤكد أو يلغي.',
+      flags: MessageFlags.Ephemeral
+    });
+    return;
+  }
+
+  pendingBans.delete(requestId);
+
+  if (isCancel) {
+    await interaction.update({
+      content: 'تم إلغاء طلب الحظر.',
+      embeds: [],
+      components: []
+    });
+    return;
+  }
+
+  const guild = interaction.guild;
+  const target = await guild.members.fetch(pending.targetId).catch(() => null);
+
+  if (!target) {
+    await interaction.update({
+      content: 'ما قدرت ألقى العضو في السيرفر.',
+      embeds: [],
+      components: []
+    });
+    return;
+  }
+
+  try {
+    await guild.members.ban(target.id, { reason: pending.reason });
+
+    const successEmbed = new EmbedBuilder()
+      .setColor(0xed4245)
+      .setTitle('تم حظر العضو')
+      .setDescription(`**العضو:** ${target.user.tag}\n**بواسطة:** ${interaction.user.tag}\n**السبب:** ${pending.reason}`)
+      .setImage('https://static2.klipy.com/ii/935d7ab9d8c6202580a668421940ec81/fa/91/9nZRxdF2.gif');
+
+    await interaction.update({ embeds: [successEmbed], components: [] });
+  } catch (error) {
+    console.error('Ban error:', error);
+    await interaction.update({
+      content: 'فشل الحظر. تأكد أن رتبة البوت أعلى من رتبة العضو.',
+      embeds: [],
+      components: []
+    });
+  }
+});
 async function log(guild, title, description) {
   if (!config.logChannelId) return;
   const channel = await guild.channels.fetch(config.logChannelId).catch(() => null);
