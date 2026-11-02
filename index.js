@@ -76,7 +76,7 @@ ctx.fillText(member.user.username, 450, 280);
     
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot || !message.guild) return;
-  const allowedPointChannels = ['1556560887559618620', '1556596123001692190'];
+  const allowedPointChannels = ['1556560887559618620', '1556596123001692190', '1565213564640296960'];
   if (message.content.trim() === '+استعلام') {
   if (!allowedPointChannels.includes(message.channel.id)) {
   await message.reply('استخدم أحد رومي النقاط المخصصين.').catch(() => {});
