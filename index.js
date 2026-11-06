@@ -296,7 +296,9 @@ async function sendMemberLog(guild, title, description, color) {
     .setTitle(title)
     .setDescription(description)
     .setTimestamp();
-
+if (member) {
+  embed.setThumbnail(member.displayAvatarURL({ extension: 'png', size: 256 }));
+}
   await channel.send({ embeds: [embed] }).catch(() => {});
 }
 
@@ -305,7 +307,9 @@ client.on(Events.GuildMemberAdd, async member => {
     member.guild,
     'دخل عضو جديد',
     `العضو: ${member.user.tag}\nالمعرّف: ${member.id}`,
-    0x57f287
+  0x57f287,
+member
+    
   );
 });
 
@@ -334,7 +338,8 @@ client.on(Events.GuildMemberRemove, async member => {
     member.guild,
     action,
     `العضو: ${member.user.tag}\nالمعرّف: ${member.id}${executor}`,
-    entry ? 0xed4245 : 0x5865f2
+    entry ? 0xed4245 : 0x5865f2,
+member
   );
 });
 
