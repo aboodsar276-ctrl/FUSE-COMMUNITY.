@@ -107,7 +107,7 @@ client.on(Events.MessageCreate, async message => {
 }
 
 const pointsTarget = message.mentions.members.first();
-const pointsMatch = message.content.match(/([+-])(\d+)\s*$/);
+const pointsMatch = message.content.trim().match(/^\+نقاط\s+<@!?\d+>\s+([+-])(\d+)$/);
 
 if (pointsTarget && pointsMatch) {
   if (!allowedPointChannels.includes(message.channel.id)) {
