@@ -722,14 +722,44 @@ client.on(Events.MessageCreate, async message => {
   }
 
   const amount = Number(match[1]);
-  const points = getEventPoints();
+const points = getEventPoints();
 
-  points[target.id] = (points[target.id] || 0) + amount;
-  saveEventPoints(points);
+points[target.id] = (points[target.id] || 0) + amount;
+saveEventPoints(points);
 
-  await message.reply(
-    `تمت إضافة **${amount}** نقطة لـ${target}. مجموع نقاطه الآن: **${points[target.id]}**.`
-  );
+const eventRankLevels = [
+  { points: 0, id: '1567569828888187065', name: 'Event Trainee' },
+  { points: 20, id: '1567570219096997888', name: 'Event Member' },
+  { points: 50, id: '1567570806022606939', name: 'Event Organizer' },
+  { points: 90, id: '1567571282218844190', name: 'Senior Organizer' },
+  { points: 140, id: '1567571710700425226', name: 'Event Supervisor' },
+  { points: 200, id: '1567573779369173112', name: 'Event Manager' },
+  { points: 280, id: '1567574121154351304', name: 'Head of Events' }
+];
+
+const ranksToAdd = eventRankLevels.filter(rank =>
+  points[target.id] >= rank.points &&
+  !target.roles.cache.has(rank.id)
+);
+
+let promotionText = '';
+
+if (ranksToAdd.length) {
+  try {
+    await target.roles.add(ranksToAdd.map(rank => rank.id));
+
+    const highestRank = ranksToAdd[ranksToAdd.length - 1];
+    promotionText =
+      `\n🎉 مبروك ${target}، ترقيت لرتبة **${highestRank.name}** ❤️❤️`;
+  } catch (error) {
+    console.error('Event promotion error:', error);
+    promotionText = '\nتعذرت إضافة رتبة الترقية؛ تأكد أن رتبة البوت أعلى من رتب الإيفنت.';
+  }
+}
+
+await message.reply(
+  `تمت إضافة **${amount}** نقطة لـ${target}. مجموع نقاطه الآن: **${points[target.id]}**.${promotionText}`
+);
 });
 if (!process.env.DISCORD_TOKEN) throw new Error('ضع DISCORD_TOKEN داخل ملف .env');
 client.login(process.env.DISCORD_TOKEN);
