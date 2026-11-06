@@ -284,7 +284,7 @@ client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
     }
   }
 });
-async function sendMemberLog(guild, title, description, color) {
+async function sendMemberLog(guild, title, description, color, member = null) {
   const channel = await guild.channels
     .fetch('1556057724540682370')
     .catch(() => null);
