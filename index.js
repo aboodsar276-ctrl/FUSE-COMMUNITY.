@@ -21,6 +21,16 @@ if (!fs.existsSync(pointsFile)) fs.writeFileSync(pointsFile, '{}');
 
 const getPoints = () => JSON.parse(fs.readFileSync(pointsFile, 'utf8'));
 const savePoints = data => fs.writeFileSync(pointsFile, JSON.stringify(data, null, 2));
+const eventPointsFile = path.join(dataDir, 'event-points.json');
+if (!fs.existsSync(eventPointsFile)) {
+  fs.writeFileSync(eventPointsFile, '{}');
+}
+
+const getEventPoints = () =>
+  JSON.parse(fs.readFileSync(eventPointsFile, 'utf8'));
+
+const saveEventPoints = data =>
+  fs.writeFileSync(eventPointsFile, JSON.stringify(data, null, 2));
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 client.once(Events.ClientReady, c => console.log(`تم تسجيل الدخول باسم ${c.user.tag}`));
@@ -628,6 +638,93 @@ client.on(Events.InteractionCreate, async interaction => {
     const response = { content: 'تعذر تنفيذ الأمر. تحقق من صلاحيات البوت ورتبته وإعدادات السيرفر.', flags: MessageFlags.Ephemeral };
     if (interaction.replied || interaction.deferred) await interaction.followUp(response).catch(() => {}); else await interaction.reply(response).catch(() => {});
   }
+});
+client.on(Events.MessageCreate, async message => {
+  if (message.author.bot || !message.guild) return;
+
+  const content = message.content.trim();
+  const isEventQuery = content === '+استعلام ايفنت';
+  const isEventAdd = content.startsWith('+ايفنت');
+
+  if (!isEventQuery && !isEventAdd) return;
+
+  const allowedChannels = [
+    '1567593935373598770',
+    '1565213564640296960'
+  ];
+
+  if (!allowedChannels.includes(message.channel.id)) {
+    await message.reply('استخدم نظام نقاط الإيفنت في روم أوامر الإيفنت أو روم التجارب.');
+    return;
+  }
+
+  if (isEventQuery) {
+    const rows = Object.entries(getEventPoints())
+      .filter(([, total]) => total > 0)
+      .sort((a, b) => b[1] - a[1])
+      .map(([id, total], index) => `**${index + 1}.** <@${id}> — **${total}** نقطة`);
+
+    const embed = new EmbedBuilder()
+      .setColor(0x5865f2)
+      .setTitle('نقاط فريق الفعاليات')
+      .setDescription(rows.join('\n').slice(0, 4000) || 'ما في أعضاء معهم نقاط حاليًا.');
+
+    await message.channel.send({ embeds: [embed] });
+    return;
+  }
+
+  const allowedRoles = [
+    '1559303642572656670',
+    '1559304253623894036',
+    '1560413851248496730',
+    '1559304879766372503',
+    '1559305739124871208',
+    '1559305518831636562',
+    '1559306398976966696',
+    '1559306596952055828',
+    '1565053414331777174',
+    '1556053729193762907',
+    '1556027456584945685',
+    '1556315045582086354'
+  ];
+
+  if (!message.member.roles.cache.some(role => allowedRoles.includes(role.id))) {
+    await message.reply('ما عندك صلاحية تضيف نقاط الإيفنت.');
+    return;
+  }
+
+  const target = message.mentions.members.first();
+  const match = content.match(/^\+ايفنت\s+<@!?\d+>\s+(\d+)$/);
+
+  if (!target || !match) {
+    await message.reply('استخدم الأمر هكذا: `+ايفنت @العضو 5`');
+    return;
+  }
+
+  const eventTeamRoles = [
+    '1567569828888187065',
+    '1567570219096997888',
+    '1567570806022606939',
+    '1567571282218844190',
+    '1567571710700425226',
+    '1567573779369173112',
+    '1567574121154351304'
+  ];
+
+  if (!target.roles.cache.some(role => eventTeamRoles.includes(role.id))) {
+    await message.reply('تقدر تضيف النقاط لأعضاء فريق الفعاليات فقط.');
+    return;
+  }
+
+  const amount = Number(match[1]);
+  const points = getEventPoints();
+
+  points[target.id] = (points[target.id] || 0) + amount;
+  saveEventPoints(points);
+
+  await message.reply(
+    `تمت إضافة **${amount}** نقطة لـ${target}. مجموع نقاطه الآن: **${points[target.id]}**.`
+  );
 });
 if (!process.env.DISCORD_TOKEN) throw new Error('ضع DISCORD_TOKEN داخل ملف .env');
 client.login(process.env.DISCORD_TOKEN);
