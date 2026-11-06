@@ -306,7 +306,7 @@ client.on(Events.GuildMemberAdd, async member => {
   await sendMemberLog(
     member.guild,
     'دخل عضو جديد',
-    `العضو: ${member.user.tag}\nالمعرّف: ${member.id}`,
+    `العضو: <@${member.id}> (${member.user.tag})\nالمعرف: ${member.id}`,
   0x57f287,
 member
     
@@ -337,7 +337,7 @@ client.on(Events.GuildMemberRemove, async member => {
   await sendMemberLog(
     member.guild,
     action,
-    `العضو: ${member.user.tag}\nالمعرّف: ${member.id}${executor}`,
+    `العضو: <@${member.id}> (${member.user.tag})\nالمعرف: ${member.id}`,
     entry ? 0xed4245 : 0x5865f2,
 member
   );
