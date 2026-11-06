@@ -699,10 +699,10 @@ client.on(Events.MessageCreate, async message => {
   }
 
   const target = message.mentions.members.first();
-  const match = content.match(/^\+ايفنت\s+<@!?\d+>\s+(\d+)$/);
+  const match = content.match(/^\+ايفنت\s+<@!?\d+>\s+([+-])(\d+)$/);
 
   if (!target || !match) {
-    await message.reply('استخدم الأمر هكذا: `+ايفنت @العضو 5`');
+    await message.reply('استخدم الأمر هكذا: `+ايفنت @العضو +50` أو `+ايفنت @العضو -20`');
     return;
   }
 
@@ -721,10 +721,11 @@ client.on(Events.MessageCreate, async message => {
     return;
   }
 
-  const amount = Number(match[1]);
+const amount = Number(match[2]);
+const change = match[1] === '+' ? amount : -amount;
 const points = getEventPoints();
 
-points[target.id] = (points[target.id] || 0) + amount;
+points[target.id] = Math.max(0, (points[target.id] || 0) + change);
 saveEventPoints(points);
 
 const eventRankLevels = [
@@ -738,27 +739,34 @@ const eventRankLevels = [
 ];
 
 const ranksToAdd = eventRankLevels.filter(rank =>
-  points[target.id] >= rank.points &&
-  !target.roles.cache.has(rank.id)
+  points[target.id] >= rank.points && !target.roles.cache.has(rank.id)
 );
 
-let promotionText = '';
+const ranksToRemove = eventRankLevels.filter(rank =>
+  points[target.id] < rank.points && target.roles.cache.has(rank.id)
+);
 
-if (ranksToAdd.length) {
-  try {
+let rankNotice = '';
+
+try {
+  if (ranksToAdd.length) {
     await target.roles.add(ranksToAdd.map(rank => rank.id));
-
     const highestRank = ranksToAdd[ranksToAdd.length - 1];
-    promotionText =
-      `\n🎉 مبروك ${target}، ترقيت لرتبة **${highestRank.name}** ❤️❤️`;
-  } catch (error) {
-    console.error('Event promotion error:', error);
-    promotionText = '\nتعذرت إضافة رتبة الترقية؛ تأكد أن رتبة البوت أعلى من رتب الإيفنت.';
+    rankNotice += `\n🎉 مبروك ${target}، ترقيت إلى **${highestRank.name}** ❤️❤️`;
   }
+
+  if (ranksToRemove.length) {
+    await target.roles.remove(ranksToRemove.map(rank => rank.id));
+    const highestRemovedRank = ranksToRemove[ranksToRemove.length - 1];
+    rankNotice += `\nتم سحب رتبة **${highestRemovedRank.name}** بسبب انخفاض النقاط.`;
+  }
+} catch (error) {
+  console.error('Event rank update error:', error);
+  rankNotice += '\nتعذر تعديل الرتبة؛ تأكد أن رتبة البوت أعلى من رتب الإيفنت.';
 }
 
 await message.reply(
-  `تمت إضافة **${amount}** نقطة لـ${target}. مجموع نقاطه الآن: **${points[target.id]}**.${promotionText}`
+  `تم تعديل نقاط ${target} بمقدار **${change > 0 ? '+' : ''}${change}**. المجموع الآن: **${points[target.id]}**.${rankNotice}`
 );
 });
 if (!process.env.DISCORD_TOKEN) throw new Error('ضع DISCORD_TOKEN داخل ملف .env');
